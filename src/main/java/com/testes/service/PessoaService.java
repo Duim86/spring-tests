@@ -1,5 +1,6 @@
 package com.testes.service;
 
+import com.testes.excpetion.EntidadeNaoEncontradaException;
 import com.testes.excpetion.NegocioException;
 import com.testes.excpetion.PessoaAtivaException;
 import com.testes.model.Pessoa;
@@ -55,6 +56,6 @@ public class PessoaService {
 
   public Pessoa buscarOuFalhar(Long pessoaId) {
     return pessoaRepository.findById(pessoaId)
-            .orElseThrow(() -> new IllegalStateException("Usuário não encontrado"));
+            .orElseThrow(() -> new EntidadeNaoEncontradaException(pessoaId));
   }
 }

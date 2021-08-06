@@ -1,5 +1,6 @@
 package com.testes.service;
 
+import com.testes.excpetion.EntidadeNaoEncontradaException;
 import com.testes.excpetion.NegocioException;
 import com.testes.excpetion.PessoaAtivaException;
 import com.testes.model.Pessoa;
@@ -21,8 +22,8 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class PessoaServiceTest {
 
-  private Long pessoaId;
   private Pessoa pessoa;
+  private Long pessoaId;
 
   @InjectMocks
   private PessoaService pessoaService;
@@ -32,8 +33,8 @@ class PessoaServiceTest {
 
   @BeforeEach
   void setup() {
-    pessoa = new Pessoa(1L, "Alexandre Zanlorenzi", "04723645969");
     pessoaId = 1L;
+    pessoa = new Pessoa(1L, "Alexandre Zanlorenzi", "04723645969");
   }
 
 
@@ -45,6 +46,14 @@ class PessoaServiceTest {
     var pessoaDoBanco = pessoaService.buscarOuFalhar(pessoaId);
 
     assertThat(pessoa).isEqualTo(pessoaDoBanco);
+  }
+
+  @Test
+  void deveFalharBuscaUmaPessoaQuandoIdInvalido() {
+
+    when(pessoaRepository.findById(pessoaId)).thenThrow(new EntidadeNaoEncontradaException(1L));
+
+    assertThrows(EntidadeNaoEncontradaException.class, () -> pessoaService.buscarOuFalhar(pessoaId));
   }
 
   @Test
@@ -69,7 +78,7 @@ class PessoaServiceTest {
   void deveRemoverQuandoPessoaInativa() {
     pessoa.setAtivo(false);
 
-    when(pessoaRepository.findById(pessoaId)).thenReturn(Optional.of(pessoa));
+    when(pessoaRepository.findById(anyLong())).thenReturn(Optional.of(pessoa));
 
     pessoaService.remover(pessoaId);
 
@@ -80,7 +89,7 @@ class PessoaServiceTest {
   @Test
   void deveDesativarUmUsuarioQuandoPessoaAtiva() {
 
-    when(pessoaRepository.findById(pessoaId)).thenReturn(Optional.of(pessoa));
+    when(pessoaRepository.findById(anyLong())).thenReturn(Optional.of(pessoa));
 
     pessoaService.desativar(pessoaId);
 
@@ -91,7 +100,7 @@ class PessoaServiceTest {
   void deveAtivarUmUsuarioQuandoPessoaInativa() {
     pessoa.setAtivo(false);
 
-    when(pessoaRepository.findById(pessoaId)).thenReturn(Optional.of(pessoa));
+    when(pessoaRepository.findById(anyLong())).thenReturn(Optional.of(pessoa));
 
     pessoaService.ativar(pessoaId);
 
